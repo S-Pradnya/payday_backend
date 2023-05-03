@@ -55,7 +55,7 @@ public class DepartmentController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(JsonResponse.builder()
                         .data(departmentResponseModel)
-                        .message("Fetched Product")
+                        .message("Fetched Department")
                         .status(HttpStatus.OK)
                         .statusCode(HttpStatus.OK.value())
                         .build());
