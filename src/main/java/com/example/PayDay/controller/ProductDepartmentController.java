@@ -1,6 +1,8 @@
 package com.example.PayDay.controller;
 
+import com.example.PayDay.constant.ApiConstant;
 import com.example.PayDay.constant.IntegerConstant;
+import com.example.PayDay.constant.StringConstant;
 import com.example.PayDay.model.JsonResponse;
 import com.example.PayDay.model.requestmodel.ProductDepartmentRequestModel;
 import com.example.PayDay.model.responsemodel.ProductDepartmentResponseModel;
@@ -13,9 +15,10 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
-@RequestMapping(value = "/productDepartment")
+@RequestMapping(value = ApiConstant.REQUEST_MAPPING_KEY_PRODUCT_DEPARTMENT)
 public class ProductDepartmentController {
 
     @Autowired
@@ -24,41 +27,43 @@ public class ProductDepartmentController {
     @GetMapping
     public ResponseEntity<Object> getAllUserRoles() {
         List<ProductDepartmentResponseModel> productDepartmentResponseModelList = productDepartmentService.findAll();
-        if (productDepartmentResponseModelList.isEmpty())
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        if (productDepartmentResponseModelList.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(JsonResponse.builder()
-                            .message("No Product Department Found")
-                            .status(HttpStatus.NOT_FOUND)
-                            .statusCode(HttpStatus.NOT_FOUND.value())
+                            .message(StringConstant.REQUEST_FAILURE_MESSAGE_BAD_REQUEST)
+                            .status(HttpStatus.BAD_REQUEST)
+                            .statusCode(HttpStatus.BAD_REQUEST.value())
                             .build());
+        }
         return ResponseEntity.status(HttpStatus.OK)
                 .body(JsonResponse.builder()
                         .data(productDepartmentResponseModelList)
-                        .message("Fetched Product Department Lists")
+                        .message(StringConstant.REQUEST_SUCCESS_MESSAGE_PRODUCT_DEPARTMENT_FETCHED)
                         .status(HttpStatus.OK)
                         .statusCode(HttpStatus.OK.value())
                         .build());
     }
 
-    @GetMapping("/{pdId}")
+    @GetMapping(ApiConstant.REQUEST_MAPPING_PRODUCT_DEPARTMENT_ID)
     public ResponseEntity<Object> getProductDepartment(@PathVariable final Long pdId) {
-        ProductDepartmentResponseModel productDepartmentResponseModel = productDepartmentService.get(pdId);
-        if (productDepartmentResponseModel == null)
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        Optional<ProductDepartmentResponseModel> productDepartmentResponseModel = productDepartmentService.get(pdId);
+        if (productDepartmentResponseModel.isPresent()) {
+            return ResponseEntity.status(HttpStatus.OK)
                     .body(JsonResponse.builder()
-                            .message("No Product Department Found")
-                            .status(HttpStatus.NOT_FOUND)
-                            .statusCode(HttpStatus.NOT_FOUND.value())
+                            .data(productDepartmentResponseModel)
+                            .message(StringConstant.REQUEST_SUCCESS_MESSAGE_SELECTED_PRODUCT_DEPARTMENT_FETCHED + pdId)
+                            .status(HttpStatus.OK)
+                            .statusCode(HttpStatus.OK.value())
                             .build());
-        return ResponseEntity.status(HttpStatus.OK)
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(JsonResponse.builder()
-                        .data(productDepartmentResponseModel)
-                        .message("Fetched Product Department Lists")
-                        .status(HttpStatus.OK)
-                        .statusCode(HttpStatus.OK.value())
+                        .message(StringConstant.REQUEST_FAILURE_MESSAGE_BAD_REQUEST)
+                        .status(HttpStatus.BAD_REQUEST)
+                        .statusCode(HttpStatus.BAD_REQUEST.value())
                         .build());
     }
-    @GetMapping("/pagination")
+    @GetMapping(ApiConstant.REQUEST_MAPPING_KEY_PAGINATION)
     public ResponseEntity<Object> getAllProductDepartmentsByPaginated(
             @RequestParam(required = false, defaultValue = "" + IntegerConstant.INT_ZERO) Integer pageNumber,
             @RequestParam(required = false, defaultValue = "" + IntegerConstant.INT_THIRTY) Integer pageSize) {
@@ -69,48 +74,50 @@ public class ProductDepartmentController {
     @PostMapping
     public ResponseEntity<Object> createProductDepartment(@RequestBody @Valid final ProductDepartmentRequestModel productDepartmentRequestModel) {
         ProductDepartmentResponseModel productDepartmentResponseModel = productDepartmentService.create(productDepartmentRequestModel);
-        if (productDepartmentResponseModel == null)
+        if (productDepartmentResponseModel == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(JsonResponse.builder()
-                            .message("No Product Department Found")
+                            .message(StringConstant.REQUEST_FAILURE_MESSAGE_BAD_REQUEST)
                             .status(HttpStatus.NOT_FOUND)
                             .statusCode(HttpStatus.NOT_FOUND.value())
                             .build());
+        }
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(JsonResponse.builder()
                         .data(productDepartmentResponseModel)
-                        .message("Fetched Product Department Lists")
+                        .message(StringConstant.REQUEST_SUCCESS_MESSAGE_PRODUCT_DEPARTMENT_CREATED)
                         .status(HttpStatus.CREATED)
                         .statusCode(HttpStatus.CREATED.value())
                         .build());
     }
 
-    @PutMapping("/{pdId}")
+    @PutMapping(ApiConstant.REQUEST_MAPPING_PRODUCT_DEPARTMENT_ID)
     public ResponseEntity<Object> updateProductDepartment(@PathVariable final Long pdId,
                                                           @RequestBody @Valid final ProductDepartmentRequestModel productDepartmentRequestModel) {
         ProductDepartmentResponseModel productDepartmentResponseModel = productDepartmentService.update(pdId, productDepartmentRequestModel);
-        if (productDepartmentResponseModel == null)
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+        if (productDepartmentResponseModel == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(JsonResponse.builder()
-                            .message("No Product Department Found")
-                            .status(HttpStatus.NOT_FOUND)
-                            .statusCode(HttpStatus.NOT_FOUND.value())
+                            .message(StringConstant.REQUEST_FAILURE_MESSAGE_BAD_REQUEST)
+                            .status(HttpStatus.BAD_REQUEST)
+                            .statusCode(HttpStatus.BAD_REQUEST.value())
                             .build());
+        }
         return ResponseEntity.status(HttpStatus.OK)
                 .body(JsonResponse.builder()
                         .data(productDepartmentResponseModel)
-                        .message("Fetched Product Department Lists")
+                        .message(StringConstant.REQUEST_SUCCESS_MESSAGE_PRODUCT_DEPARTMENT_UPDATED)
                         .status(HttpStatus.OK)
                         .statusCode(HttpStatus.OK.value())
                         .build());
     }
 
-    @DeleteMapping("/{pdId}")
+    @DeleteMapping(ApiConstant.REQUEST_MAPPING_PRODUCT_DEPARTMENT_ID)
     public ResponseEntity<Object> deleteProductDepartment(@PathVariable final Long pdId) {
-        productDepartmentService.delete(pdId);
-        return ResponseEntity.status(HttpStatus.OK)
+            productDepartmentService.delete(pdId);
+            return ResponseEntity.status(HttpStatus.OK)
                 .body(JsonResponse.builder()
-                        .message("Product Department Deleted Successfully")
+                        .message(StringConstant.REQUEST_SUCCESS_MESSAGE_PRODUCT_DEPARTMENT_DELETED)
                         .status(HttpStatus.OK)
                         .statusCode(HttpStatus.OK.value())
                         .build());

@@ -1,8 +1,9 @@
-package com.example.PayDay.serviceclass;
+package com.example.PayDay.serviceimpl;
 
-import com.example.PayDay.entity.ProductDepartment;
-import com.example.PayDay.entity.Product;
+import com.example.PayDay.constant.StringConstant;
 import com.example.PayDay.entity.Department;
+import com.example.PayDay.entity.Product;
+import com.example.PayDay.entity.ProductDepartment;
 import com.example.PayDay.exception.ResourceNotFoundException;
 import com.example.PayDay.model.JsonResponse;
 import com.example.PayDay.model.requestmodel.ProductDepartmentRequestModel;
@@ -22,10 +23,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class ProductDepartmentServiceClass implements ProductDepartmentService {
+public class ProductDepartmentServiceImpl implements ProductDepartmentService {
 
     @Autowired
     private ProductDepartmentRepository productDepartmentRepository;
@@ -43,10 +45,8 @@ public class ProductDepartmentServiceClass implements ProductDepartmentService {
                 .collect(Collectors.toList());
     }
 
-    public ProductDepartmentResponseModel get(final Long pdId) {
-        return productDepartmentRepository.findById(pdId)
-                .map(productDepartment -> mapToResponseModel(productDepartment, new ProductDepartmentResponseModel()))
-                .orElseThrow(() -> new ResourceNotFoundException());
+    public Optional<ProductDepartmentResponseModel> get(final Long pdId) {
+        return productDepartmentRepository.findById(pdId).map(productDepartment -> mapToResponseModel(productDepartment, new ProductDepartmentResponseModel()));
     }
 
     public ProductDepartmentResponseModel create(final ProductDepartmentRequestModel productDepartmentRequestModel) {
@@ -58,15 +58,13 @@ public class ProductDepartmentServiceClass implements ProductDepartmentService {
 
     public ProductDepartmentResponseModel update(final Long pdId, final ProductDepartmentRequestModel productDepartmentRequestModel) {
         final ProductDepartment productDepartment = productDepartmentRepository.findById(pdId)
-                .orElseThrow(() -> new ResourceNotFoundException());
+                .orElseThrow(() -> new ResourceNotFoundException(StringConstant.REQUEST_FAILURE_MESSAGE_BAD_REQUEST));
         mapToEntity(productDepartmentRequestModel, productDepartment);
         ProductDepartment savedProductDepartment = productDepartmentRepository.save(productDepartment);
         return mapToResponseModel(productDepartment, new ProductDepartmentResponseModel());
     }
 
-    public void delete(final Long pdId) {
-        productDepartmentRepository.deleteById(pdId);
-    }
+    public void delete(final Long pdId) {productDepartmentRepository.deleteById(pdId);}
 
     @Override
     public ResponseEntity<Object> findAllPaginated(Integer pageNumber, Integer pageSize) {
@@ -75,7 +73,7 @@ public class ProductDepartmentServiceClass implements ProductDepartmentService {
         if (productDepartments.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(JsonResponse.builder()
-                            .message("No ProductDepartments found")
+                            .message(StringConstant.REQUEST_FAILURE_MESSAGE_BAD_REQUEST)
                             .status(HttpStatus.NOT_FOUND)
                             .statusCode(HttpStatus.NOT_FOUND.value())
                             .build());
@@ -87,7 +85,7 @@ public class ProductDepartmentServiceClass implements ProductDepartmentService {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(JsonResponse.builder()
                         .data(productDepartmentResponseModelList)
-                        .message("ProductDepartments Paginated List.")
+                        .message(StringConstant.REQUEST_SUCCESS_MESSAGE_PAGINATION)
                         .status(HttpStatus.OK)
                         .statusCode(HttpStatus.OK.value())
                         .build());
@@ -110,10 +108,10 @@ public class ProductDepartmentServiceClass implements ProductDepartmentService {
         productDepartment.setPdDepartmentId(productDepartmentRequestModel.getPdDepartmentId());
         productDepartment.setDeleted(productDepartmentRequestModel.getDeleted());
         final Product product = productDepartmentRequestModel.getProduct() == null ? null : productRepository.findById(productDepartmentRequestModel.getProduct())
-                .orElseThrow(() -> new ResourceNotFoundException());
+                .orElseThrow(() -> new ResourceNotFoundException(StringConstant.REQUEST_FAILURE_MESSAGE_BAD_REQUEST));
         productDepartment.setProduct(product);
         final Department department = productDepartmentRequestModel.getDepartment() == null ? null : departmentRepository.findById(productDepartmentRequestModel.getDepartment())
-                .orElseThrow(() -> new ResourceNotFoundException());
+                .orElseThrow(() -> new ResourceNotFoundException(StringConstant.REQUEST_FAILURE_MESSAGE_BAD_REQUEST));
         productDepartment.setDepartment(department);
         return productDepartment;
     }

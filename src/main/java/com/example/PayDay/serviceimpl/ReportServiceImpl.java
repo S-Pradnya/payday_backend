@@ -1,5 +1,6 @@
-package com.example.PayDay.serviceclass;
+package com.example.PayDay.serviceimpl;
 
+import com.example.PayDay.constant.StringConstant;
 import com.example.PayDay.entity.DailyEntry;
 import com.example.PayDay.model.JsonResponse;
 import com.example.PayDay.model.responsemodel.DailyEntryResponseModel;
@@ -18,7 +19,7 @@ import java.util.Date;
 import java.util.stream.Collectors;
 
 @Service
-public class ReportServiceClass implements ReportService {
+public class ReportServiceImpl implements ReportService {
     @Autowired
     DailyEntryPaginatedRepository dailyEntryRepository;
 
@@ -47,7 +48,7 @@ public class ReportServiceClass implements ReportService {
         if (dailyEntriesResult.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(JsonResponse.builder()
-                            .message("No more Daily Entries found")
+                            .message(StringConstant.REQUEST_FAILURE_MESSAGE_BAD_REQUEST)
                             .status(HttpStatus.NOT_FOUND)
                             .statusCode(HttpStatus.NOT_FOUND.value())
                             .build());
@@ -57,7 +58,7 @@ public class ReportServiceClass implements ReportService {
                         .data(dailyEntriesResult.getContent().stream()
                                 .map((dailyEntry) -> mapToResponseModel(dailyEntry, new DailyEntryResponseModel()))
                                 .collect(Collectors.toList()))
-                        .message("Fetched DailyEntry Data.")
+                        .message(StringConstant.REQUEST_SUCCESS_MESSAGE_DAILY_ENTRY_FETCHED)
                         .status(HttpStatus.OK)
                         .statusCode(HttpStatus.OK.value())
                         .build());

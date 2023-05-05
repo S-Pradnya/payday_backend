@@ -1,11 +1,10 @@
-package com.example.PayDay.serviceclass;
+package com.example.PayDay.serviceimpl;
 
-import com.example.PayDay.entity.ProductDepartment;
+import com.example.PayDay.constant.StringConstant;
 import com.example.PayDay.entity.User;
 import com.example.PayDay.exception.ResourceNotFoundException;
 import com.example.PayDay.model.JsonResponse;
 import com.example.PayDay.model.requestmodel.UserRequestModel;
-import com.example.PayDay.model.responsemodel.ProductDepartmentResponseModel;
 import com.example.PayDay.model.responsemodel.UserResponseModel;
 import com.example.PayDay.repository.UserRepository;
 import com.example.PayDay.service.UserService;
@@ -20,10 +19,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class UserServiceClass implements UserService {
+public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepository;
@@ -33,8 +33,8 @@ public class UserServiceClass implements UserService {
         return users.stream().map((user) -> mapToResponseModel(user, new UserResponseModel())).collect(Collectors.toList());
     }
 
-    public UserResponseModel get(final Long userId) {
-        return userRepository.findById(userId).map(user -> mapToResponseModel(user, new UserResponseModel())).orElseThrow(() -> new ResourceNotFoundException());
+    public Optional<UserResponseModel> get(Long userId) {
+        return userRepository.findById(userId).map(user -> mapToResponseModel(user, new UserResponseModel()));
     }
 
     public UserResponseModel create(final UserRequestModel userRequestModel) {
@@ -45,7 +45,7 @@ public class UserServiceClass implements UserService {
     }
 
     public UserResponseModel update(final Long userId, final UserRequestModel userRequestModel) {
-        final User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException());
+        final User user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException(StringConstant.REQUEST_FAILURE_MESSAGE_BAD_REQUEST));
         mapToEntity(userRequestModel, user);
         User savedUser = userRepository.save(user);
         return mapToResponseModel(user, new UserResponseModel());
@@ -62,7 +62,7 @@ public class UserServiceClass implements UserService {
         if (users.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(JsonResponse.builder()
-                            .message("No Users found")
+                            .message(StringConstant.REQUEST_FAILURE_MESSAGE_BAD_REQUEST)
                             .status(HttpStatus.NOT_FOUND)
                             .statusCode(HttpStatus.NOT_FOUND.value())
                             .build());
@@ -74,7 +74,7 @@ public class UserServiceClass implements UserService {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(JsonResponse.builder()
                         .data(userResponseModelList)
-                        .message("Users Paginated List.")
+                        .message(StringConstant.REQUEST_SUCCESS_MESSAGE_PAGINATION)
                         .status(HttpStatus.OK)
                         .statusCode(HttpStatus.OK.value())
                         .build());

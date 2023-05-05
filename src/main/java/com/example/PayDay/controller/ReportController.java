@@ -1,5 +1,6 @@
 package com.example.PayDay.controller;
 
+import com.example.PayDay.constant.ApiConstant;
 import com.example.PayDay.constant.IntegerConstant;
 import com.example.PayDay.constant.StringConstant;
 import com.example.PayDay.repository.DailyEntryRepository;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Date;
 
 @RestController
-@RequestMapping(value = "/reports")
+@RequestMapping(value = ApiConstant.REQUEST_MAPPING_KEY_REPORT)
 public class ReportController {
 
     @Autowired
@@ -23,7 +24,7 @@ public class ReportController {
     @Autowired
     private DailyEntryRepository dailyEntryRepository;
 
-    @GetMapping("/dailyEntry")
+    @GetMapping(ApiConstant.REQUEST_MAPPING_KEY_DAILY_ENTRY_REPORT)
     public ResponseEntity<Object> getData(
             @RequestParam(required = false, defaultValue = "" + IntegerConstant.INT_ZERO) Integer pageNumber,
             @RequestParam(required = false, defaultValue = "" + IntegerConstant.INT_THIRTY) Integer pageSize,

@@ -1,9 +1,8 @@
-package com.example.PayDay.serviceclass;
+package com.example.PayDay.serviceimpl;
 
+import com.example.PayDay.constant.StringConstant;
 import com.example.PayDay.entity.DailyEntry;
-import com.example.PayDay.entity.Department;
 import com.example.PayDay.exception.ResourceNotFoundException;
-import com.example.PayDay.entity.User;
 import com.example.PayDay.model.requestmodel.DailyEntryRequestModel;
 import com.example.PayDay.model.responsemodel.DailyEntryResponseModel;
 import com.example.PayDay.repository.DailyEntryRepository;
@@ -14,6 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,10 +32,9 @@ public class DailyEntryServiceClass implements DailyEntryService {
                 .collect(Collectors.toList());
     }
 
-    public DailyEntryResponseModel get(final Long deId) {
+    public Optional<DailyEntryResponseModel> get(final Long deId) {
         return dailyEntryRepository.findById(deId)
-                .map(dailyEntry -> mapToResponseModel(dailyEntry, new DailyEntryResponseModel()))
-                .orElseThrow(() -> new ResourceNotFoundException());
+                .map(dailyEntry -> mapToResponseModel(dailyEntry, new DailyEntryResponseModel()));
     }
     public DailyEntryResponseModel create(final DailyEntryRequestModel dailyEntryRequestModel) {
         final DailyEntry dailyEntry = new DailyEntry();
@@ -46,7 +45,7 @@ public class DailyEntryServiceClass implements DailyEntryService {
 
     public DailyEntryResponseModel update(final Long deId, final DailyEntryRequestModel dailyEntryRequestModel) {
         final DailyEntry dailyEntry = dailyEntryRepository.findById(deId)
-                .orElseThrow(() -> new ResourceNotFoundException());
+                .orElseThrow(() -> new ResourceNotFoundException(StringConstant.REQUEST_FAILURE_MESSAGE_BAD_REQUEST));
         mapToEntity(dailyEntryRequestModel, dailyEntry);
         DailyEntry savedDailyEntry = dailyEntryRepository.save(dailyEntry);
         return mapToResponseModel(dailyEntry, new DailyEntryResponseModel());

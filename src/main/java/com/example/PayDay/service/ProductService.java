@@ -1,18 +1,17 @@
 package com.example.PayDay.service;
 
 import com.example.PayDay.model.requestmodel.ProductRequestModel;
-import com.example.PayDay.model.requestmodel.UserRequestModel;
 import com.example.PayDay.model.responsemodel.ProductResponseModel;
-import com.example.PayDay.model.responsemodel.UserResponseModel;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ProductService {
 
     List<ProductResponseModel> findAll();
 
-    ProductResponseModel get(Long productId);
+    Optional<ProductResponseModel> get(Long productId);
 
     ProductResponseModel create(ProductRequestModel productRequestModel);
 

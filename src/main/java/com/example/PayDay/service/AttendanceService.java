@@ -1,18 +1,17 @@
 package com.example.PayDay.service;
 
 import com.example.PayDay.model.requestmodel.AttendanceRequestModel;
-import com.example.PayDay.model.requestmodel.DepartmentRequestModel;
 import com.example.PayDay.model.responsemodel.AttendanceResponseModel;
-import com.example.PayDay.model.responsemodel.DepartmentResponseModel;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface AttendanceService {
 
     List<AttendanceResponseModel> findAll();
 
-    AttendanceResponseModel get(Long attendanceId);
+    Optional<AttendanceResponseModel> get(Long attendanceId);
 
     AttendanceResponseModel create(AttendanceRequestModel attendanceRequestModel);
 

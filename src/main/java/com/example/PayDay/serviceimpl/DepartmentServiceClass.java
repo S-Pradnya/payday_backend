@@ -1,12 +1,11 @@
-package com.example.PayDay.serviceclass;
+package com.example.PayDay.serviceimpl;
 
+import com.example.PayDay.constant.StringConstant;
 import com.example.PayDay.entity.Department;
-import com.example.PayDay.entity.ProductDepartment;
 import com.example.PayDay.exception.ResourceNotFoundException;
 import com.example.PayDay.model.JsonResponse;
 import com.example.PayDay.model.requestmodel.DepartmentRequestModel;
 import com.example.PayDay.model.responsemodel.DepartmentResponseModel;
-import com.example.PayDay.model.responsemodel.ProductDepartmentResponseModel;
 import com.example.PayDay.repository.DepartmentRepository;
 import com.example.PayDay.service.DepartmentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,8 +33,8 @@ public class DepartmentServiceClass implements DepartmentService {
         return departments.stream().map((department) -> mapToResponseModel(department, new DepartmentResponseModel())).collect(Collectors.toList());
     }
 
-    public DepartmentResponseModel get(final Long departmentId) {
-        return departmentRepository.findById(departmentId).map(employee -> mapToResponseModel(employee, new DepartmentResponseModel())).orElseThrow(() -> new ResourceNotFoundException());
+    public Optional<DepartmentResponseModel> get(final Long departmentId) {
+        return departmentRepository.findById(departmentId).map(employee -> mapToResponseModel(employee, new DepartmentResponseModel()));
     }
 
     public DepartmentResponseModel create(final DepartmentRequestModel departmentRequestModel) {
@@ -45,15 +45,13 @@ public class DepartmentServiceClass implements DepartmentService {
     }
 
     public DepartmentResponseModel update(final Long departmentId, final DepartmentRequestModel departmentRequestModel) {
-        final Department department = departmentRepository.findById(departmentId).orElseThrow(() -> new ResourceNotFoundException());
+        final Department department = departmentRepository.findById(departmentId).orElseThrow(() -> new ResourceNotFoundException(StringConstant.REQUEST_FAILURE_MESSAGE_BAD_REQUEST));
         mapToEntity(departmentRequestModel, department);
         Department savedDepartment = departmentRepository.save(department);
         return mapToResponseModel(department, new DepartmentResponseModel());
     }
 
-    public void delete(final Long departmentId) {
-        departmentRepository.deleteById(departmentId);
-    }
+    public void delete(final Long departmentId) {departmentRepository.deleteById(departmentId);}
 
     @Override
     public ResponseEntity<Object> findAllPaginated(Integer pageNumber, Integer pageSize) {
@@ -62,7 +60,7 @@ public class DepartmentServiceClass implements DepartmentService {
         if (departments.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(JsonResponse.builder()
-                            .message("No Departments found")
+                            .message(StringConstant.REQUEST_FAILURE_MESSAGE_BAD_REQUEST)
                             .status(HttpStatus.NOT_FOUND)
                             .statusCode(HttpStatus.NOT_FOUND.value())
                             .build());
@@ -74,7 +72,7 @@ public class DepartmentServiceClass implements DepartmentService {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(JsonResponse.builder()
                         .data(departmentResponseModelList)
-                        .message("Departments Paginated List.")
+                        .message(StringConstant.REQUEST_SUCCESS_MESSAGE_PAGINATION)
                         .status(HttpStatus.OK)
                         .statusCode(HttpStatus.OK.value())
                         .build());

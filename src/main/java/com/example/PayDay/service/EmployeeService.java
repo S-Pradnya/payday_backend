@@ -5,12 +5,13 @@ import com.example.PayDay.model.responsemodel.EmployeeResponseModel;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface EmployeeService {
 
     List<EmployeeResponseModel> findAll();
 
-    EmployeeResponseModel get(Long employeeId);
+    Optional<EmployeeResponseModel> get(Long employeeId);
 
     EmployeeResponseModel create(EmployeeRequestModel employeeRequestModel);
 

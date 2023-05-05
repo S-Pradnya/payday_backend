@@ -2,13 +2,15 @@ package com.example.PayDay.service;
 
 import com.example.PayDay.model.requestmodel.DailyEntryRequestModel;
 import com.example.PayDay.model.responsemodel.DailyEntryResponseModel;
+
 import java.util.List;
+import java.util.Optional;
 
 public interface DailyEntryService {
 
     List<DailyEntryResponseModel> findAll();
 
-    DailyEntryResponseModel get(Long deId);
+    Optional<DailyEntryResponseModel> get(Long deId);
 
     DailyEntryResponseModel create(DailyEntryRequestModel dailyEntryRequestModel);
 

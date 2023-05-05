@@ -1,12 +1,11 @@
-package com.example.PayDay.serviceclass;
+package com.example.PayDay.serviceimpl;
 
+import com.example.PayDay.constant.StringConstant;
 import com.example.PayDay.entity.Attendance;
-import com.example.PayDay.entity.ProductDepartment;
 import com.example.PayDay.exception.ResourceNotFoundException;
 import com.example.PayDay.model.JsonResponse;
 import com.example.PayDay.model.requestmodel.AttendanceRequestModel;
 import com.example.PayDay.model.responsemodel.AttendanceResponseModel;
-import com.example.PayDay.model.responsemodel.ProductDepartmentResponseModel;
 import com.example.PayDay.repository.AttendanceRepository;
 import com.example.PayDay.service.AttendanceService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,9 +33,8 @@ public class AttendanceServiceClass implements AttendanceService {
         return attendances.stream().map((attendance) -> mapToResponseModel(attendance, new AttendanceResponseModel())).collect(Collectors.toList());
     }
 
-    public AttendanceResponseModel get(final Long attendanceId) {
-        return attendanceRepository.findById(attendanceId).map(attendance -> mapToResponseModel(attendance, new AttendanceResponseModel())).orElseThrow(() -> new ResourceNotFoundException());
-    }
+    public Optional<AttendanceResponseModel> get(final Long attendanceId) {
+        return attendanceRepository.findById(attendanceId).map(attendance -> mapToResponseModel(attendance, new AttendanceResponseModel()));}
 
     public AttendanceResponseModel create(final AttendanceRequestModel attendanceRequestModel) {
         final Attendance attendance = new Attendance();
@@ -45,7 +44,7 @@ public class AttendanceServiceClass implements AttendanceService {
     }
 
     public AttendanceResponseModel update(final Long attendanceId, final AttendanceRequestModel attendanceRequestModel) {
-        final Attendance attendance = attendanceRepository.findById(attendanceId).orElseThrow(() -> new ResourceNotFoundException());
+        final Attendance attendance = attendanceRepository.findById(attendanceId).orElseThrow(() -> new ResourceNotFoundException(StringConstant.REQUEST_FAILURE_MESSAGE_BAD_REQUEST));
         mapToEntity(attendanceRequestModel, attendance);
         Attendance savedAttendance = attendanceRepository.save(attendance);
         return mapToResponseModel(attendance, new AttendanceResponseModel());
@@ -61,7 +60,7 @@ public class AttendanceServiceClass implements AttendanceService {
         if (attendances.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(JsonResponse.builder()
-                            .message("No Attendance of Employees found")
+                            .message(StringConstant.REQUEST_FAILURE_MESSAGE_BAD_REQUEST)
                             .status(HttpStatus.NOT_FOUND)
                             .statusCode(HttpStatus.NOT_FOUND.value())
                             .build());
@@ -73,7 +72,7 @@ public class AttendanceServiceClass implements AttendanceService {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(JsonResponse.builder()
                         .data(attendanceResponseModelList)
-                        .message("Attendance Paginated List.")
+                        .message(StringConstant.REQUEST_SUCCESS_MESSAGE_PAGINATION)
                         .status(HttpStatus.OK)
                         .statusCode(HttpStatus.OK.value())
                         .build());

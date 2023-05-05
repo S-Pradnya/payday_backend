@@ -1,0 +1,28 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+  error:
+    include-message: always
+spring:
+  application:
+    name: payday
+  datasource:
+    url: ${JDBC_DATABASE_URL:jdbc:mysql://localhost:3306/payday?serverTimezone=UTC}
+    username: ${JDBC_DATABASE_USERNAME:root}
+    password: ${JDBC_DATABASE_PASSWORD:root123}
+    driverClassName: com.mysql.cj.jdbc.Driver
+    dbcp2:
+      max-wait-millis: 30000
+      validation-query: SELECT 1
+      validation-query-timeout: 30
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  jackson:
+    serialization:
+      fail-on-empty-beans: false

@@ -1,7 +1,5 @@
 package com.example.PayDay.model.requestmodel;
 
-import com.example.PayDay.entity.Department;
-import com.example.PayDay.entity.Product;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

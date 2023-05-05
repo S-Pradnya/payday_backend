@@ -1,9 +1,11 @@
 package com.example.PayDay.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.SQLDelete;
 import javax.persistence.*;
 import java.util.Set;
 
@@ -12,6 +14,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Getter
 @Setter
+@SQLDelete(sql = "UPDATE product SET deleted = true WHERE product_id=?")
 public class Product {
 
     @Id
@@ -40,10 +43,11 @@ public class Product {
     @Column
     private Boolean deleted = Boolean.FALSE;
 
-    @OneToOne(fetch = FetchType.EAGER,cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id",insertable = false,updatable = false)
     private User user;
 
     @OneToMany(mappedBy = "product")
+    @JsonIgnore
     private Set<ProductDepartment> productDepartment;
 }

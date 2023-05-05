@@ -1,12 +1,18 @@
 package com.example.PayDay.model.requestmodel;
 
 import com.example.PayDay.entity.User;
-import lombok.Getter;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import javax.validation.constraints.Size;
 
-@Getter
-@Setter
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class ProductRequestModel {
 
     private Long productId;

@@ -1,6 +1,8 @@
 package com.example.PayDay.controller;
 
+import com.example.PayDay.constant.ApiConstant;
 import com.example.PayDay.constant.IntegerConstant;
+import com.example.PayDay.constant.StringConstant;
 import com.example.PayDay.model.JsonResponse;
 import com.example.PayDay.model.requestmodel.UserRequestModel;
 import com.example.PayDay.model.responsemodel.UserResponseModel;
@@ -10,11 +12,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
-@RequestMapping(value = "/users")
+@RequestMapping(value = ApiConstant.REQUEST_MAPPING_KEY_USER)
 public class UserController {
 
     @Autowired
@@ -23,43 +27,44 @@ public class UserController {
     @GetMapping
     public ResponseEntity<Object> getAllUsers() {
         List<UserResponseModel> userResponseModelList = userService.findAll();
-        if (userResponseModelList.isEmpty())
+        if (userResponseModelList.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(JsonResponse.builder()
-                            .message("No User Found")
-                            .status(HttpStatus.NOT_FOUND)
-                            .statusCode(HttpStatus.NOT_FOUND.value())
-                            .build());
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(JsonResponse.builder()
-                        .data(userResponseModelList)
-                        .message("Fetched User Lists")
-                        .status(HttpStatus.OK)
-                        .statusCode(HttpStatus.OK.value())
-                        .build());
-    }
-
-    @GetMapping("/{userId}")
-    public ResponseEntity<Object> getUser(@PathVariable final Long userId) {
-        UserResponseModel userResponseModel = userService.get(userId);
-        if (userResponseModel == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(JsonResponse.builder()
-                            .message("No User Found")
+                            .message(StringConstant.REQUEST_FAILURE_MESSAGE_BAD_REQUEST)
                             .status(HttpStatus.NOT_FOUND)
                             .statusCode(HttpStatus.NOT_FOUND.value())
                             .build());
         }
         return ResponseEntity.status(HttpStatus.OK)
                 .body(JsonResponse.builder()
-                        .data(userResponseModel)
-                        .message("Fetched User")
+                        .data(userResponseModelList)
+                        .message(StringConstant.REQUEST_SUCCESS_MESSAGE_USER_FETCHED)
                         .status(HttpStatus.OK)
                         .statusCode(HttpStatus.OK.value())
                         .build());
     }
-    @GetMapping("/pagination")
+
+    @GetMapping(value = ApiConstant.REQUEST_MAPPING_USER_ID)
+    public ResponseEntity<Object> getProduct(@PathVariable final Long userId) {
+        Optional<UserResponseModel> userResponseModel = userService.get(userId);
+        if (userResponseModel.isPresent()) {
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(JsonResponse.builder()
+                            .data(userResponseModel)
+                            .message(StringConstant.REQUEST_SUCCESS_MESSAGE_SELECTED_USER_FETCHED +userId)
+                            .status(HttpStatus.OK)
+                            .statusCode(HttpStatus.OK.value())
+                            .build());
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(JsonResponse.builder()
+                        .message(StringConstant.REQUEST_FAILURE_MESSAGE_BAD_REQUEST)
+                        .status(HttpStatus.BAD_REQUEST)
+                        .statusCode(HttpStatus.BAD_REQUEST.value())
+                        .build());
+
+    }
+    @GetMapping(ApiConstant.REQUEST_MAPPING_KEY_PAGINATION)
     public ResponseEntity<Object> getAllUsersByPaginated(
             @RequestParam(required = false, defaultValue = "" + IntegerConstant.INT_ZERO) Integer pageNumber,
             @RequestParam(required = false, defaultValue = "" + IntegerConstant.INT_THIRTY) Integer pageSize) {
@@ -74,7 +79,7 @@ public class UserController {
         if (userResponseModel == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(JsonResponse.builder()
-                            .message("Something went wrong!!!")
+                            .message(StringConstant.REQUEST_FAILURE_MESSAGE_BAD_REQUEST)
                             .status(HttpStatus.BAD_REQUEST)
                             .statusCode(HttpStatus.BAD_REQUEST.value())
                             .build());
@@ -82,20 +87,20 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(JsonResponse.builder()
                         .data(userResponseModel)
-                        .message("User Created Successfully")
+                        .message(StringConstant.REQUEST_SUCCESS_MESSAGE_USER_CREATED)
                         .status(HttpStatus.CREATED)
                         .statusCode(HttpStatus.CREATED.value())
                         .build());
     }
 
-    @PutMapping("/{userId}")
+    @PutMapping(ApiConstant.REQUEST_MAPPING_USER_ID)
     public ResponseEntity<Object> updateUser(@PathVariable final Long userId,
                                              @RequestBody @Valid final UserRequestModel userRequestModel) {
         UserResponseModel userResponseModel = userService.update(userId, userRequestModel);
         if (userResponseModel == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(JsonResponse.builder()
-                            .message("Something went wrong!!!")
+                            .message(StringConstant.REQUEST_FAILURE_MESSAGE_BAD_REQUEST)
                             .status(HttpStatus.BAD_REQUEST)
                             .statusCode(HttpStatus.BAD_REQUEST.value())
                             .build());
@@ -103,18 +108,18 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(JsonResponse.builder()
                         .data(userResponseModel)
-                        .message("User Updated Successfully")
+                        .message(StringConstant.REQUEST_SUCCESS_MESSAGE_USER_UPDATED)
                         .status(HttpStatus.OK)
                         .statusCode(HttpStatus.OK.value())
                         .build());
     }
 
-    @DeleteMapping("/{userId}")
+    @DeleteMapping(ApiConstant.REQUEST_MAPPING_USER_ID)
     public ResponseEntity<Object> deleteUser(@PathVariable final Long userId) {
         userService.delete(userId);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(JsonResponse.builder()
-                        .message("User Deleted Successfully")
+                        .message(StringConstant.REQUEST_SUCCESS_MESSAGE_USER_DELETED)
                         .status(HttpStatus.OK)
                         .statusCode(HttpStatus.OK.value())
                         .build());

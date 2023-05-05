@@ -1,10 +1,13 @@
 package com.example.PayDay.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.SQLDelete;
+
 import javax.persistence.*;
 import java.util.Set;
 
@@ -13,6 +16,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Setter
 @Getter
+@SQLDelete(sql = "UPDATE department SET deleted = true WHERE department_id=?")
 public class Department {
 
     @Id
@@ -34,5 +38,6 @@ public class Department {
     private User user;
 
     @OneToMany(mappedBy = "department")
+    @JsonIgnore
     private Set<ProductDepartment> productDepartment;
 }

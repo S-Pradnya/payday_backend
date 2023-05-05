@@ -1,12 +1,11 @@
-package com.example.PayDay.serviceclass;
+package com.example.PayDay.serviceimpl;
 
+import com.example.PayDay.constant.StringConstant;
 import com.example.PayDay.entity.Employee;
-import com.example.PayDay.entity.ProductDepartment;
 import com.example.PayDay.exception.ResourceNotFoundException;
 import com.example.PayDay.model.JsonResponse;
 import com.example.PayDay.model.requestmodel.EmployeeRequestModel;
 import com.example.PayDay.model.responsemodel.EmployeeResponseModel;
-import com.example.PayDay.model.responsemodel.ProductDepartmentResponseModel;
 import com.example.PayDay.repository.EmployeeRepository;
 import com.example.PayDay.service.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,8 +33,8 @@ public class EmployeeServiceClass implements EmployeeService {
         return employees.stream().map((employee) -> mapToResponseModel(employee, new EmployeeResponseModel())).collect(Collectors.toList());
     }
 
-    public EmployeeResponseModel get(final Long employeeId) {
-        return employeeRepository.findById(employeeId).map(employee -> mapToResponseModel(employee, new EmployeeResponseModel())).orElseThrow(() -> new ResourceNotFoundException());
+    public Optional<EmployeeResponseModel> get(final Long employeeId) {
+        return employeeRepository.findById(employeeId).map(employee -> mapToResponseModel(employee, new EmployeeResponseModel()));
     }
 
     public EmployeeResponseModel create(final EmployeeRequestModel employeeRequestModel) {
@@ -45,15 +45,13 @@ public class EmployeeServiceClass implements EmployeeService {
     }
 
     public EmployeeResponseModel update(final Long employeeId, final EmployeeRequestModel employeeRequestModel) {
-        final Employee employee = employeeRepository.findById(employeeId).orElseThrow(() -> new ResourceNotFoundException());
+        final Employee employee = employeeRepository.findById(employeeId).orElseThrow(() -> new ResourceNotFoundException(StringConstant.REQUEST_FAILURE_MESSAGE_BAD_REQUEST));
         mapToEntity(employeeRequestModel, employee);
         Employee savedEmployee = employeeRepository.save(employee);
         return mapToResponseModel(employee, new EmployeeResponseModel());
     }
 
-    public void delete(final Long employeeId) {
-        employeeRepository.deleteById(employeeId);
-    }
+    public void delete(final Long employeeId) {employeeRepository.deleteById(employeeId);}
 
     @Override
     public ResponseEntity<Object> findAllPaginated(Integer pageNumber, Integer pageSize) {
@@ -62,7 +60,7 @@ public class EmployeeServiceClass implements EmployeeService {
         if (employees.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(JsonResponse.builder()
-                            .message("No Employees found")
+                            .message(StringConstant.REQUEST_FAILURE_MESSAGE_BAD_REQUEST)
                             .status(HttpStatus.NOT_FOUND)
                             .statusCode(HttpStatus.NOT_FOUND.value())
                             .build());
@@ -74,7 +72,7 @@ public class EmployeeServiceClass implements EmployeeService {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(JsonResponse.builder()
                         .data(employeeResponseModelList)
-                        .message("Employees Paginated List.")
+                        .message(StringConstant.REQUEST_SUCCESS_MESSAGE_PAGINATION)
                         .status(HttpStatus.OK)
                         .statusCode(HttpStatus.OK.value())
                         .build());

@@ -6,12 +6,11 @@ import com.example.PayDay.model.responsemodel.UserResponseModel;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.Optional;
 
 
 public interface UserService {
     List<UserResponseModel> findAll();
-
-    UserResponseModel get(Long userId);
 
     UserResponseModel create(UserRequestModel userRequestModel);
 
@@ -20,4 +19,6 @@ public interface UserService {
     void delete(Long userId);
 
     ResponseEntity<Object> findAllPaginated(Integer pageNumber, Integer pageSize);
+
+    Optional<UserResponseModel> get(Long userId);
 }

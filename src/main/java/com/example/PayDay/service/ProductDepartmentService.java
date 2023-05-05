@@ -5,12 +5,13 @@ import com.example.PayDay.model.responsemodel.ProductDepartmentResponseModel;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ProductDepartmentService {
 
     List<ProductDepartmentResponseModel> findAll();
 
-    ProductDepartmentResponseModel get(Long pdId);
+    Optional<ProductDepartmentResponseModel> get(Long pdId);
 
     ProductDepartmentResponseModel create(ProductDepartmentRequestModel productDepartmentRequestModel);
 

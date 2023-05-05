@@ -1,6 +1,8 @@
 package com.example.PayDay.controller;
 
+import com.example.PayDay.constant.ApiConstant;
 import com.example.PayDay.constant.IntegerConstant;
+import com.example.PayDay.constant.StringConstant;
 import com.example.PayDay.model.JsonResponse;
 import com.example.PayDay.model.requestmodel.DepartmentRequestModel;
 import com.example.PayDay.model.responsemodel.DepartmentResponseModel;
@@ -13,9 +15,10 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 @Controller
-@RequestMapping(value = "/departments")
+@RequestMapping(value = ApiConstant.REQUEST_MAPPING_KEY_DEPARTMENT)
 public class DepartmentController {
 
     @Autowired
@@ -24,43 +27,43 @@ public class DepartmentController {
     @GetMapping
     public ResponseEntity<Object> getAllDepartments() {
         List<DepartmentResponseModel> departmentResponseModelList = departmentService.findAll();
-        if (departmentResponseModelList.isEmpty())
+        if (departmentResponseModelList.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(JsonResponse.builder()
-                            .message("No Department Found")
-                            .status(HttpStatus.NOT_FOUND)
-                            .statusCode(HttpStatus.NOT_FOUND.value())
-                            .build());
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(JsonResponse.builder()
-                        .data(departmentResponseModelList)
-                        .message("Fetched Department Lists")
-                        .status(HttpStatus.OK)
-                        .statusCode(HttpStatus.OK.value())
-                        .build());
-    }
-
-    @GetMapping("/{departmentId}")
-    public ResponseEntity<Object> getDepartment(@PathVariable final Long departmentId) {
-        DepartmentResponseModel departmentResponseModel = departmentService.get(departmentId);
-        if (departmentResponseModel == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(JsonResponse.builder()
-                            .message("No Department Found")
+                            .message(StringConstant.REQUEST_FAILURE_MESSAGE_BAD_REQUEST)
                             .status(HttpStatus.NOT_FOUND)
                             .statusCode(HttpStatus.NOT_FOUND.value())
                             .build());
         }
         return ResponseEntity.status(HttpStatus.OK)
                 .body(JsonResponse.builder()
-                        .data(departmentResponseModel)
-                        .message("Fetched Product")
+                        .data(departmentResponseModelList)
+                        .message(StringConstant.REQUEST_SUCCESS_MESSAGE_DEPARTMENT_FETCHED)
                         .status(HttpStatus.OK)
                         .statusCode(HttpStatus.OK.value())
                         .build());
     }
-    @GetMapping("/pagination")
+
+    @GetMapping(ApiConstant.REQUEST_MAPPING_DEPARTMENT_ID)
+    public ResponseEntity<Object> getDepartment(@PathVariable final Long departmentId) {
+        Optional<DepartmentResponseModel> departmentResponseModel = departmentService.get(departmentId);
+        if (departmentResponseModel.isPresent()) {
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(JsonResponse.builder()
+                            .data(departmentResponseModel)
+                            .message(StringConstant.REQUEST_SUCCESS_MESSAGE_SELECTED_DEPARTMENT_FETCHED +departmentId)
+                            .status(HttpStatus.OK)
+                            .statusCode(HttpStatus.OK.value())
+                            .build());
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(JsonResponse.builder()
+                        .message(StringConstant.REQUEST_FAILURE_MESSAGE_BAD_REQUEST)
+                        .status(HttpStatus.BAD_REQUEST)
+                        .statusCode(HttpStatus.BAD_REQUEST.value())
+                        .build());
+    }
+    @GetMapping(ApiConstant.REQUEST_MAPPING_KEY_PAGINATION)
     public ResponseEntity<Object> getAllDepartmentsByPaginated(
             @RequestParam(required = false, defaultValue = "" + IntegerConstant.INT_ZERO) Integer pageNumber,
             @RequestParam(required = false, defaultValue = "" + IntegerConstant.INT_THIRTY) Integer pageSize) {
@@ -74,7 +77,7 @@ public class DepartmentController {
         if (departmentResponseModel == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(JsonResponse.builder()
-                            .message("Something went wrong!!!")
+                            .message(StringConstant.REQUEST_FAILURE_MESSAGE_BAD_REQUEST)
                             .status(HttpStatus.BAD_REQUEST)
                             .statusCode(HttpStatus.BAD_REQUEST.value())
                             .build());
@@ -82,20 +85,20 @@ public class DepartmentController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(JsonResponse.builder()
                         .data(departmentResponseModel)
-                        .message("Department Created Successfully")
+                        .message(StringConstant.REQUEST_SUCCESS_MESSAGE_DEPARTMENT_CREATED)
                         .status(HttpStatus.CREATED)
                         .statusCode(HttpStatus.CREATED.value())
                         .build());
     }
 
-    @PutMapping("/{departmentId}")
+    @PutMapping(ApiConstant.REQUEST_MAPPING_DEPARTMENT_ID)
     public ResponseEntity<Object> updateDepartment(@PathVariable final Long departmentId,
                                                 @RequestBody @Valid final DepartmentRequestModel departmentRequestModel) {
         DepartmentResponseModel departmentResponseModel = departmentService.update(departmentId, departmentRequestModel);
         if (departmentResponseModel == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(JsonResponse.builder()
-                            .message("Something went wrong!!!")
+                            .message(StringConstant.REQUEST_FAILURE_MESSAGE_BAD_REQUEST)
                             .status(HttpStatus.BAD_REQUEST)
                             .statusCode(HttpStatus.BAD_REQUEST.value())
                             .build());
@@ -103,20 +106,20 @@ public class DepartmentController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(JsonResponse.builder()
                         .data(departmentResponseModel)
-                        .message("Department Updated Successfully")
+                        .message(StringConstant.REQUEST_SUCCESS_MESSAGE_DEPARTMENT_UPDATED)
                         .status(HttpStatus.OK)
                         .statusCode(HttpStatus.OK.value())
                         .build());
     }
 
-    @DeleteMapping("/{departmentId}")
+    @DeleteMapping(ApiConstant.REQUEST_MAPPING_DEPARTMENT_ID)
     public ResponseEntity<Object> deleteDepartment(@PathVariable final Long departmentId) {
-        departmentService.delete(departmentId);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(JsonResponse.builder()
-                        .message("Department Deleted Successfully")
-                        .status(HttpStatus.OK)
-                        .statusCode(HttpStatus.OK.value())
-                        .build());
+            departmentService.delete(departmentId);
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(JsonResponse.builder()
+                            .message(StringConstant.REQUEST_SUCCESS_MESSAGE_DEPARTMENT_DELETED)
+                            .status(HttpStatus.OK)
+                            .statusCode(HttpStatus.OK.value())
+                            .build());
     }
 }
